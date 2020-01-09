@@ -1,12 +1,7 @@
 package google;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.lang.model.util.Elements;
-
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -17,7 +12,8 @@ public class GoogleSearchTest {
 
 		System.setProperty("webdriver.chrome.driver", "chromedriver");
 		WebDriver driver = new ChromeDriver();
-		
+        String requiredUrl = "https://developer.fandango.com/rotten_tomatoes";
+
 		
 		//Open Google
 		driver.get("https://www.google.com/");
@@ -29,30 +25,17 @@ public class GoogleSearchTest {
 		searchBar.submit();
 		
 		//Get result 	
-		List<WebElement> websitesLinks = driver.findElements(By.xpath("//cite"));
-		
-		List<String> values = new ArrayList<String>();
-		
-		for (WebElement results: websitesLinks)
-		{
-			values.add(results.getText());
-		}
-
-		System.out.println(values);
-
-		//Check URL
-		String url = "https://developer.fandango.com › rotten_tomatoes";
-
-		for (String value: values) 
-		{
-
-			if (value.trim().contains(url)) {
-				System.out.println("URL is present on the first page");
+        List<WebElement> listOfUrls = driver.findElements(By.xpath("//*[@class='r']//*[@href]"));	
+        		
+		for (WebElement url: listOfUrls)
+		{            
+			if (url.getAttribute("href").equals(requiredUrl)) 
+			{
+				System.out.println("The required link is present on the first page of Google search!");
+				break;
 			}
-		}
-		
-		
-		
+			
+		}		
 		driver.close();
 	}
 
