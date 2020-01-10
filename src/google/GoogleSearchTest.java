@@ -1,42 +1,72 @@
 package google;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import org.hamcrest.MatcherAssert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
+import static org.hamcrest.CoreMatchers.*;
+
+
 public class GoogleSearchTest {
-
-	public static void main(String[] args) {
-
-		System.setProperty("webdriver.chrome.driver", "chromedriver");
-		WebDriver driver = new ChromeDriver();
-        String requiredUrl = "https://developer.fandango.com/rotten_tomatoes";
-
+	
+	private String searchEngine;
+	private String pageTitle;
+	private WebElement searchField;
+	private String searchText;
+	private String requiredUrl;
+	private List<WebElement> urlList;
+	
+	WebDriver driver = new ChromeDriver();
+	
+	public GoogleSearchTest(String requiredUrl, String searchEngine) {
+		this.searchEngine = searchEngine;
+		this.requiredUrl = requiredUrl;
+		this.urlList = new ArrayList<WebElement>();
+	}
+	
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
+	
+	public String getSearchText() {
+		return this.searchText;
+	}
+	
+	public void setPageTitle(String url) {
+		driver.get(url);
+		this.pageTitle = driver.getTitle();
+	}
+	
+	public void setSearchField() {
+		this.searchField = driver.findElement(By.name("q"));
+	}
+	
+	public void searchText() {
+		searchField.sendKeys(getSearchText());
+		searchField.submit();
+	}
+	
+	public List<String> findResults() {
+		List<String> urlStringList = new ArrayList<>();
+		this.urlList = this.driver.findElements(By.xpath("//*[@class='r']//*[@href]"));
 		
-		//Open Google
-		driver.get("https://www.google.com/");
-		System.out.println(driver.getTitle());
-
-		//Search text
-		WebElement searchBar = driver.findElement(By.name("q"));
-		searchBar.sendKeys("Rotten Tomatoes API");
-		searchBar.submit();
-		
-		//Get result 	
-        List<WebElement> listOfUrls = driver.findElements(By.xpath("//*[@class='r']//*[@href]"));	
-        		
-		for (WebElement url: listOfUrls)
-		{            
-			if (url.getAttribute("href").equals(requiredUrl)) 
-			{
-				System.out.println("The required link is present on the first page of Google search!");
-				break;
-			}
-			
-		}		
+		for (WebElement url : urlList) {
+			urlStringList.add(url.getAttribute("href"));
+		}
+		return urlStringList;
+	}
+	
+	public void getFinalResult() {
+		List<String> urlStringList = findResults();
+		MatcherAssert.assertThat(urlStringList, hasItems(requiredUrl));
+	}
+	
+	public void close() {
 		driver.close();
 	}
-
 }
